@@ -10,21 +10,16 @@ from torchsummary import summary
 from matplotlib import pyplot as plt
 import numpy as np
 
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
-bs = 100
 # MNIST Dataset
 train_dataset = torchvision.datasets.MNIST(root='./mnist_data/', train=True, transform=transforms.ToTensor(), download=True)
 test_dataset = torchvision.datasets.MNIST(root='./mnist_data/', train=False, transform=transforms.ToTensor(), download=False)
-
+bs=100
 # Data Loader (Input Pipeline)
 train_loader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=bs, shuffle=True)
 test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=bs, shuffle=False)
-class UnFlatten(nn.Module):
-    def forward(self, input, size=576):
-        return input.view(input.size(0), size, 1, 1)
+# class UnFlatten(nn.Module):
+#     def forward(self, input, size=576):
+#         return input.view(input.size(0), size, 1, 1)
     
 # class VariationalAutoEncoderCNN(nn.Module):
 #     def __init__(self, z_dim, h_dim=576):
@@ -89,10 +84,10 @@ class VariationalAutoEncoderMLP(nn.Module):
         
         
     def encode(self,x):
-        x=self.fc1(x)
+        x=torch.relu(self.fc1(x))
         return self.fc2(x),self.fc3(x)
     def decode(self,x):
-        x = self.fc4(x)
+        x = torch.relu(self.fc4(x))
         x = self.fc5(x)
         return F.sigmoid(x)
     def forward(self, x):
