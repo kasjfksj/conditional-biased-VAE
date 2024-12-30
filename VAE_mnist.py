@@ -126,8 +126,7 @@ def train(num_epochs, model, optimizer):
             # print(x[0][0])
             # imshow(torchvision.utils.make_grid(x[1]))
             x=x[:,0,:,:].view(-1,784)
-            x_reconst, mu, log_sigma = model(x)
-            sigma = torch.exp(log_sigma)
+            x_reconst, mu, sigma = model(x)
             # loss, formulas from https://www.youtube.com/watch?v=igP03FXZqgo&t=2182s
             reconst_loss = F.binary_cross_entropy(x_reconst, x.view(-1, 784), reduction='sum')    #First part of ELBO, reconstruction loss, measures how good is reconstructed image
             kl_div = - torch.sum(1 + torch.log(sigma.pow(2)) - mu.pow(2) - sigma.pow(2)) #Second part of ELBO, measure difference between distribution of latent space and normal distribution
@@ -169,7 +168,6 @@ def inference(digit, num_examples=1):
             imshow(torchvision.utils.make_grid(d[1]))
             # mu, sigma = model.encode(images[d].view(-1,3,32,32))
             mu, log_sigma = model.encode(d[1].view(-1,784))
-            print(mu)
             sigma = torch.exp(log_sigma)
             epsilon = torch.randn_like(torch.exp(sigma))
             z_reparametrized = mu + sigma*epsilon
@@ -178,7 +176,6 @@ def inference(digit, num_examples=1):
             from_original.append(x_reconst)
             imshow(torchvision.utils.make_grid(x_reconst))
         encodings_digit.append((mu, sigma))
-        # save_image(out, f"generated_{digit}_ex{example}.png")
     
     sigma = torch.rand(16)*2-1
     sigma = sigma.view(-1,16)
